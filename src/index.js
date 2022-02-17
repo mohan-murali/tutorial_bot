@@ -1,11 +1,17 @@
 //require the necessary discord.js classes
-const {Client, Intents } = require('discord.js');
-require('dotenv').config();
-
-const token = process.env.DISCORDJS_BOT_TOKEN;
-
+const fs = require('fs');
+const {Client, Collection, Intents } = require('discord.js');
+const { token } = require('./config.json');
 //create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS]});
+
+client.commands = new Collection();
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+for(const file in commandFiles){
+    const command = require(`./commands/${file}`);
+    client.commands.set(command.data.name, command);
+}
 
 //when the client is ready, run this code (only once)
 client.once('ready', ()=> {
